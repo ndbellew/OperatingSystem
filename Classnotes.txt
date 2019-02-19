@@ -1,0 +1,4 @@
+Reverse Paging table. 
+
+Image img;
+pixel[2047][33] = 0;

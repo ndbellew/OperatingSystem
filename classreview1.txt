@@ -1,0 +1,67 @@
+Virtualization
+	- run one process then stopping it, and running another over and over
+	to appear as having multiple CPU's
+	
+Concurrency
+
+Thread
+Locks
+Boot Process - Describe the Process.
+1. post
+2. Bios/UEFI
+3. MBR
+4. Boot Loader
+5. Kernel
+	RDMDISTC
+	MOD
+	Rost VOLUME
+6. Init
+___
+Vauhgn Neumann Process model
+	-difference between Vaughn Newman and harvard process.
+		-Harvard code was in a different space
+What changes in process model with multiple threads
+	- each thread needs its own stack. 
+	1. How systems boot
+	2. Kernel
+	3. init
+	4. fork / exec <-> Create Process
+Process
+1. Stack
+2. Free List
+	- each thread needs their own stack
+3. Heap
+4. Global Vars
+5. Lit Constants
+6. Text (scope)
+Physical ram is shuffled to areas that is needed
+Scheduling RTB
+
+Process Creating
+	fork / exec
+	understanding how environment variables propegate through processes
+
+Threads
+	pthreads (posix threads)
+	multiple threads of execution
+	How to do them
+	How to cordinate them
+		START:
+			Wait for them to end
+			Dealing with shared resources
+Shared Resources:
+	Identify shared Resources
+		For every shared resource create a substitute resource manager
+		mutex (semaphore)
+		n=1	n>=1
+
+	Identify where they are manipulated (read/written)
+	(critical sections)
+		Reserve/Release the substitute resource, before and afterusing the real one
+	The Problem releasing the mutex
+		- C++ use constructor - obtain and a destructure - release. then place a lock guard
+		- Java/C# monitors
+		
+	
+	
+

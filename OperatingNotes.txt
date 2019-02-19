@@ -1,0 +1,11 @@
+okay so we should have been taking notes before.
+
+MMU allows the connection from access memory to RAM. 
+How can RAM be accesed by the stack?
+although light travles quick it still takes some time to reach. so if you 
+look into a modern computer we can see the computer core. 
+inside of the core we see the Caches. 
+Paging Table
+	- Map from physical addresses into virtual addresses
+	
+

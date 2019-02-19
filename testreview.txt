@@ -1,0 +1,67 @@
+What are some advantages to fork/exe compared to CreateProcess
+1. Fork/exec does not automatically replace the image of one process with another so initilization and shared code pages (fork on write) can be shared between parent/child process. This saves memory (shared pages) and time (no reinitaization).
+2. 
+void main(){
+int x = 1;
+if (fork() == 0){
+++x;
+printf("a: %d",x);
+}else{
+printf("b: %d",x);
+}
+}
+so at fork() == 1000 it prints out b:1 then when x is incremented fork() == 1001 so it runs through again and prints a:2
+3. Describe the boot process
+i. Post (power on self test cpu checks for RAM basic sys config)
+ii. BIOS / UEFI (runs bios boot config boot devie order, etc)
+iii. MBR (512b of memory to load second boot loader)
+iv. Grub - Grand unified boot loader (just any boot loader to load kernel)
+v. Kernel + RAMDisk for initial order
+vi. Mount to root system
+vii. Load Modules
+viii. init
+4. Describe the Von Neumann memory model. Why are the text and constant sections adjacent?
+
+-----
+Stack
+  |
+  |
+Heap
+---
+Gobals
+---
+Literal constants
+---
+Text (code)
+
+Von Neumann vs. Harvard
+ - vn has tehs ame bus for literal const and text, where as harvard has seperate bus for text and literal. but are both considered ROM able data so they are both on the same level. 
+
+5. Why can't a process call kernel operations like any other subroutine?
+ - Kernel is privelidged - letting it act like any other library would mean any process could do anything. you must have a way to change priv level and must have a way to control access points. 
+kernel: software interrupts + Interrupt Vector Table does that.
+
+6. Explain the difference between a shared resource and a critical section.
+- shared resources are usually memory resources (but can be sockets, files, etc), that are potentially modifiable from more than one thread. 
+ -> Data no common use by multi threads.
+-Critical sections are sections of code, that access shared resources. 
+	-> protect these with mutexes
+
+7. What is something threads can't share? Why?
+- Threads can't share the same stack. they are independently moving up and down the stack and if shared it is hard to keep track of. so because they are modifying the stack independently, if they operate in a single stack they wouldnt be able to get work done without slowing the process. 
+
+8. An application with 4 threads is running on a 2 core system. What is the maximum speedup compared to a single core system? What if it ran on a 6 core system? Explain why.
+if you have 2 cores and 4 threads, you can occupy the the two cores with 2 threads. which would be twice as busy as having one core. you can keep both cores 100% busy. 
+For 6, you can get up to x4, because you can use all the thread, but cannot use all of the cores. 
+
+9. give an example of an ideal and a practical shceduling algorithm
+ideal - 
+Shortest Job First - you can do the processes based off of how short each process is, minimizes the average wait time between processes. it is impossible because you dont know how long it runs. 
+Practical
+- Round Robin - all programs run at the same length until the process is completed
+ - Lottery Technique
+
+10/ A race condition happens once in 10^9 hours of operation, and your application is used by 10^7 users. Assuming th users use the appliceation 1000 hours each eyar, about how many users per year would experience the condition?
+1/10^9 * 10^7 * 10 ^ 3
+-> 10^1 = 10
+

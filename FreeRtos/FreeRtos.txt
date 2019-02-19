@@ -1,0 +1,40 @@
+recently acquired by Amazon
+optimesed for real time applications
+software application can be written as a set of independent tasks
+checks to make sure priority task is running
+The real time scheduler is effectively a piece of code that allows you 
+to specify the timing characteristics of your application - permitting greatly simplified
+smaller and there fore easier to understand application code. 
+Changing one module should not effet the temporal behaviour of another module
+	the software will be less susceptible to changes in the hardware
+there will be no need to break functions up into mini state machines to prevent them 
+taking too long to exeute to completion
+FreeRTOS permits a task to block on events - no time is wasted polling or checking timers when there are
+actually no events that require processing
+Automattically set to low power mode if computer has been idle for long
+
+
+TASK MANAGEMENT
+3.1-2
+Each task is a small program in its wn right. it has an entry point and run forever
+each task is given a priority and run in order of priority
+Tasks exit in two states, running and not r unning
+only one task can be Running at a time
+3.3
+Not Running contains sub states
+
+3.4
+
+
+3.5
+any number of tasks can share the same priority
+FreeRTOS uses one of two methods to decide which task will be in the Running State
+	1. Generic Method
+		- implemented in C
+		- does not limit maximum value but reccomended to set minumum as low as possible
+			- because the higher the value the more RAM that is consumed and longer execution
+		- Generic Method will be used it it is the only method provided for the FreeRTOS port in use
+	2. Architecture Optimized Method
+		- uses smaller assembler code and is faster than Generic
+		- needs configMAX_PRIORITES to be less than or equal to 32
+The Scheduler will always ensure the highest priotiry task that is avalaible to run is Running.

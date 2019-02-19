@@ -1,0 +1,270 @@
+a typical system is set into a specific heirarchy. 
+ 	Cpu and memory are connected through a Memory Bus
+	Graphics are connected through a Geral I/O Bus.
+	and the remaining ports, SCSI, SATA, USB are linked to the peripheral bus.
+this is due to how much it costs and physics.
+	in order to increase the speed of a bus it needs to be shorter, so the
+	parts of a computer that need speed (CPU and Memory) are placed on the fastest
+	bus. 
+	creating a high performance bus is very expensive, so placing peices in
+	spots will make the system faster. 
+Conanical Device
+	A conanical device has two importantt components
+		interface - allows the system software to control its operation
+		Internal structure - this varies from system to system, but its main goal is
+						     to allow the system to implement its functionality
+		firmware - software inside a hardware device
+Conanical Protocol
+	for a simple device, we can seperate it into three registers
+		1. Status
+			- can be read to see the current status of the device
+		2. Command
+			- tell the devce to perform a certain task
+		3. Data
+			- pass data to the device or get data from the device
+	these three registers allow the os to control the devices behavior
+	PROTOCOL:
+		While (STATUS == BUSY)
+		; //wait until not busy
+		Write data to DATA register
+		Write command to COMMAND register
+		(Doing so starts the device and executes the command)
+		While (STATUS == BUSY)
+		;//wait until device is down with your request
+	essentially this can be put into four steps
+		1. poll the device until it can run the command
+		2. write in the data for the command.
+			- When the main CPU is involved with the data movement, we refer to it as programmed I/O (PIO)
+		3. run the actual command
+		4. polls device until the command has finished running. 
+	Inefficiencies.
+			- the protocol polling is actually inefficient to run, it wastes
+			CPU time waiting for the device to complete its activity instead of switching to another ready process. 
+Lowering CPU Overhead With Interrupts
+	- so polling is very slow to run the os cmmand. so to improve engineers created an interrupt
+		- computer puts in request to create a interrupt service routine.
+			this puts the computer to rest after the current process is over. - interrupt handler.
+		- this allows us to create an overlap, which is key for improved utilization
+	- so the system pauses and runs the os code then continues.
+	- another option is to interrupt the process, run the command, and then restart the process
+		this allows both to be properly utilized
+	- interrupts are not always the best solution
+	- PIO is better for systems that are faster. slower systems really utilize interupt handlers
+	- however if speed is not known we use a hybrid.
+		first we poll 
+		then after x time we interrupt.
+		- the two phased approach
+	- if we use interrupts it could cause a livelock - the OS finds itself the only processing 
+				interrupts and never allows a user-level ptrocess to run and actually service the requesets.
+More Efficient Data Movement with DMA
+	- When using PIO to transfer a larg chuck of data to a device, the CPU
+		is once again over burdened with a rather trivial task, and thus
+		wastes a lot of time and effort that could be better spent running
+		other processes.
+		- essentially when the I/O needs to copy data it is taking up time to do so
+			which ruins the efficiency
+	- Direct Memory Access(DMA)
+		- a device in the system that can orcehstrate transfers between devices
+			and main memory without much CPU intervention
+			- The DMA downloads the data then throws an interrupt, the os runs the command, then
+				then the process re-runs.
+Methods of Device Interaction
+	- How does the OS communicate with Devices?
+	- Overtime we have created two primary methods of device communication
+		- 1. to use I/O explicit instructions
+			- specifies a way for teh OS to send data to certain registers.
+			- the os creates privelidged instructions
+				-  the OS controls devices and is therefore the only one that can commincate with them
+		- 2. memory-mapped I/O, 
+			- makes device registers available as if they were memory locations
+			- to access a register the OS issues a load or store to the address
+				the hardware then routes the load/store to the device instead of the main memory
+	- Both approaches are equal in their advantages,
+		- although memory-mapped is nice in that no new instructions are needed to support it
+Fitting Into the OS: The Device Driver
+	- How do we keep devices with specific interfaces into the OS, while keeping them as general as possible?
+	- Abstraction
+		- Device driver
+			at the lowest level a peice of software in the OS must know in detail how a device works
+			any specifics of device interactions are encapsulated within.
+		- 
+Simple IDE DISK Driver
+	- an IDE disk presents a simple interface to the system of four types of register
+		1. Control
+		2. command block
+		3. status.
+		4. error
+	- protocol
+		1. wait for driver to be ready
+		2. write parameters to command registers
+		3. start the I/O
+		4. Data transfer 
+		5. Handle interrupts
+		6. Error handling
+Hard Disk Drives
+	-These drives have been the main form of persistent data storage
+		in computer systems
+	I. Interface
+		- the drive consists of multiple sectors (512-byte blocks)
+			- each block is atomic - it will complete in its entirity or won't complete at all
+			- so if it loses power randomly only a larger write will save - torn write
+		- they are numbered from 0 to n-1 which is known as the address space
+		- one can usually assume that accessing two blocks that are near one-another
+			within the drive’s address space will be faster than accessing two blocks
+			that are far apart
+	II.Basic Geometry
+		- The Modern Disk
+			- platter - a circular hard surface that saves data through inducing magnetic changes
+				- a platter has 2 surfaces (sides)
+				- because it is magnetically charged, it can store bits even while powered off
+				- platters are connected to the spindle which spins from a motor.
+					at a fixed rate betweeen 7200 rpm and 15000 rpm
+				- the data is saved on a concentric circle - track
+			- disk head - used to read or write from each track in the platter
+				- it is moved and manipulated by the disk arm
+	III. A Simple Disk Drive
+		- this is an example where the disk drive has a single track.
+		- Single Track Latency: the Rotational Delay
+			- how should we read block 0?
+			- if the full rotational delay is called R the disk has to wait a full 
+				rotational delay of R/2 to wait for the 0 to come under the read/write head
+			- worst case is the disk has to do a full rotation to reach the target
+		- Multiple Tracks: Seek Time
+			- on top of the regular rotation delay the disk head also needs to find the correct disk
+			- each platter has millions of disks with a location in each area.
+			- it is found in four steps
+				1. accelaration
+				2. deacceleration
+				3. settling time
+					- often the longest part of the system. .5-.2 ms
+				4. transfer
+					- when data is read or written
+		- a little more
+			- most devices use a track skew so that it can read data even
+				if it is crossing the track boundary
+				- if it didnt use the skew track the head would have to wait
+					a full rotation to read to continue its search for the location
+			- inner zoned - when there are more sectors than inner tracks
+			- Cache
+				- sometimes called a track buffer
+				- contains memory and can be read or written from by the disk head
+			- when does the head determine if the write finished? 
+				- either when it put data in its memory or after the write has been written to the disk
+				- this is where we get write back caching or immediate reporting for 
+					the first
+					- appears faster but can be dangerous
+					- especially if the data needs to be written in a specific order
+				- the second option is called write through. 
+	IV. I/O Time: Doing The Math
+		- we can represent I/O time with three main components
+			- T_I/O = T_seek + T_rotation + T_transfer
+		- The rate of I/O can be expressed as well
+			- R_I/O = (Size_transfer)/T_I/O
+		- there are two main workloads to focus on
+			1. random
+				- where it issues small reads to random applications on the disk
+			2. sequential
+				- reads large number of sectors consecutively from the disk
+	V. Disk Scheduling
+		- Shortest Seek Time First
+			- orders the queue of I/O requests by track, picking requests on the nearest track
+				to complete first
+			- 2 prblems
+				1. Drive Geometry is not available on the host os
+				2. Starvation
+				    - if there are other calls to a different track is ignored until all requests
+						from that sector are finished
+		- Elevator (SCAN or C-SCAN)
+			- SCAN
+			  - moves back and forth on the disk serviciing requests in order across the tracks
+			- C-SCAN - Circular 
+				- instead of sweeping back and forth it sweeps outside to inside
+			- ELEVATOR
+				- this comes because SCAN operates like an elevator, it moves up and down the system
+		- Shortest Positioning Time First - SPTF
+			- sometimes called shortest access time first or SATF
+	- Other Issues
+		- nothing to notate
+Redundant Arrays of Inexpensive Disks
+	* RAIDs for short
+		- a technique to use multiple disks to build a faster, bigger, and more reliable disk system.
+		- Externally it looks like a disk, a group of blocks one can read or write.
+		- internally its very complex, containing - disks, memory, one or more processors to manage the system
+	* Advantages
+		- Performance - using multiple disks can greatly increase the speed of I/O time
+		- Capacity - Large data sets demand larg disks.
+		- reliability - with use of redundancy RAIDs can withstand the loss of a disk and still run the os
+		- RAIDs can provide this without changing a line of software. and can be deployed by the user with ease.
+	I. Interface And RAID Internals
+		i. Logical I/O request
+			- RAID calculates which disk(s) to accesss 
+			- then issues one or more physical I/O's to do so
+				- The nature of the physical I/O depends on the level of the RAID
+		ii. Raid System
+			- built as a seperate hardware box, with standard connection to host (SCSI or SATA)
+			* Software
+				- microcontroller that runs firmware to direct operation
+				- volitile memory like DRAM to buffer data blocks as they are read or written
+				- non-volatile memory to buffer writes safely and specialized logic to perform parity calculations
+	II. Fault Model
+		# Fail-stop
+			- is either working or failed
+			- RAID can imediately detect when fail occurs during fail-stop
+	III. How to Evaluate RAID
+		i. capacity
+			- given a set of N disks each with B blocks 
+			- without redundancy we have N*B useful capacity
+			- with redundancy we have (N*B)/2 of useful capacity
+		ii. reliability
+			- with our current model only an entire disk can fail
+		iii. performance
+			- the book doesnt give any definition or example
+	IV. RAID Level 0: Striping
+		- the first RAID level isnt a RAID level at all - no redundancy
+		- known as Striping
+			- spread the blocks of the array across the disks in a round-robin fashion
+		- we call all the blocks in the same row a stripe.
+		* RAID mapping problem
+			- When the RAID doesnt know which physical disk and offset to access when it needs to read or write
+		i. Chunk Sizes
+			- different sizes affect performance of the array
+			- a large chunk size reduces intra-file parallelism
+				- reduce positioning time
+		ii. Back To RAID-0 Analysis
+			- stripings delivers N * B blocks of capacity
+			- 
+		iii. Evaluationg RAID Performance
+		iv. Back To RAID-0 Analysis, Again
+	V. RAID Level 1: Mirroring
+		i. RAID-1 Analysis
+			- RAID is kind of slow but mirrors other disks
+			- if any one disk fails RAID will still operate
+			Capacity
+				- N*B)/2
+			Reliability
+				- reliable as long as only one disk fails
+			Performance
+				- has decent performance by using round robing-like operations
+	VI. RAID Level 4: Saving Space With Parity
+		i. RAID-4 Analysis
+			- attempts to use less capacity
+			- reserves single disk to copy all other disks
+			Capacity
+				- (N-1)*B
+			Reliability
+				- tolerates 1 disk failuer and no more. 
+			Performance
+				- (N-1) * S MB/s
+	VII. RAID Level 5: Rotating Parity
+		i. RAID-5 Analysis
+			- similar to RAID-4 uses parity
+			- Rotates the parity across the blocks
+			Capacity
+				- equivilant to RAID-4
+			Reliability
+				- 1
+			Performance
+				- increases random read but slower random write
+	VIII. RAID Comparison - Summary
+
+

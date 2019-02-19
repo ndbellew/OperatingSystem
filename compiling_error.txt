@@ -1,0 +1,3 @@
+/tmp/ccV3LTYq.o: In function `f':
+/home/nate/Documents/OperatingSystem/integral.c:9: undefined reference to `pow'
+collect2: error: ld returned 1 exit status

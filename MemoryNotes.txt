@@ -1,0 +1,23 @@
+3 types of memory
+Flash Memory
+	- Fast
+	issues:
+	- Capacitors - charged to store data, but you don't discharge a byte of data, you discharge
+					an entire bank at a time. you can only reset. 
+	- impossible to write byte to flash you only write page to flash.
+	- Erasing is slow - discharge compacitors and recharge them. 
+		- inorder to be efficient - memory is being switched out to each block
+			depending on how often it is being written in.
+	- since flash is charging and discharging through capacitors they will eventually
+		burn out.
+	Partition
+		
+Platter
+	- Slower than Flash, mechanical, they spin and a read/write head puts data
+		on each platter. The head charges the data through a magnetic discharge on the metal. 
+	- 
+Network	
+	- such as iSCSI
+	
+Each set of memory has blocks.  
+	
